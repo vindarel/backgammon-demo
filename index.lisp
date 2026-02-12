@@ -1,28 +1,10 @@
-(ql:quickload '(hunchenissr markup))
-(defpackage backgammon
-  (:use #:cl #:markup)
-  (:import-from #:hunchentoot
-                easy-acceptor
-                set-cookie
-                cookie-value
-                cookie-in
-                cookie-out)
-  (:import-from #:hunchenissr
-                define-easy-handler
-                *id*
-                *socket*
-                *ws-port*
-                start
-                stop
-                redirect)
-  (:export #:start
-           #:stop))
+
+
 
 (in-package #:backgammon)
 
 (markup:enable-reader)
 
-(load "backgammon.lisp")
 (defparameter *port* 8080)
 
 (defparameter *ws-port* 4433)

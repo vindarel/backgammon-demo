@@ -1,3 +1,6 @@
+
+(in-package :backgammon)
+
 (defun sum= (l1 l2)
   (= (apply #'+ l1)
      (apply #'+ l2)))
