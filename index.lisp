@@ -26,7 +26,8 @@
                         :document-root "resources/")
          :ws-port 4433))
 
-(defconstant +die-faces+ "⚀⚁⚂⚃⚄⚅")
+(defparameter +die-faces+ "⚀⚁⚂⚃⚄⚅")
+
 (defun die-face (n) (elt +die-faces+ (- n 1)))
 
 (defparameter *games* (make-hash-table :test #'equalp)
