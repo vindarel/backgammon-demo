@@ -14,17 +14,20 @@
                 *ws-port*
                 start
                 stop
-                redirect))
+                redirect)
+  (:export #:start
+           #:stop))
+
 (in-package #:backgammon)
+
 (markup:enable-reader)
 
 (load "backgammon.lisp")
+(defparameter *port* 8080)
 
-(defparameter server
-  (start (make-instance 'easy-acceptor
-                        :port 8080
-                        :document-root "resources/")
-         :ws-port 4433))
+(defparameter *ws-port* 4433)
+
+(defparameter server nil)
 
 (defparameter +die-faces+ "⚀⚁⚂⚃⚄⚅")
 
@@ -32,6 +35,17 @@
 
 (defparameter *games* (make-hash-table :test #'equalp)
   "Key: gameid, Value: (list backgammon players...)")
+
+(defun start-server (&key (port *port*) (ws-port *ws-port*))
+  "Start Hunchentoot, on port 8080 by default, URL /backgammon"
+  (setf server
+        (start (make-instance 'easy-acceptor
+                              :port port
+                              :document-root "resources/")
+               :ws-port ws-port)))
+
+(defun stop-server ()
+  (stop server))
 
 (defun get-game (gameid)
   (first (gethash gameid *games*)))
@@ -291,15 +305,16 @@
          </body>
        </html>))))
 
-;; delete old backgammon games
-(bordeaux-threads:make-thread
- (lambda ()
-   (dolist (gameid (alexandria:hash-table-keys *games*))
-     (let ((game (get-game gameid)))
-       (when (or (null game)
-                 (< 86400
-                    (- (get-universal-time)
-                       (time-created game))))
-         (remhash gameid *games*))))
-   (sleep 86400))
- :name "cleanup backgammon games")
+(defun delete-old-games ()
+  "Delete old backgammon games."
+  (bordeaux-threads:make-thread
+   (lambda ()
+     (dolist (gameid (alexandria:hash-table-keys *games*))
+       (let ((game (get-game gameid)))
+         (when (or (null game)
+                   (< 86400
+                      (- (get-universal-time)
+                          (time-created game))))
+           (remhash gameid *games*))))
+     (sleep 86400))
+   :name "cleanup backgammon games"))
